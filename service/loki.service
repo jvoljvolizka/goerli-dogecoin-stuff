@@ -1,0 +1,15 @@
+[Unit]
+Description=Like Prometheus, but for logs. 
+
+[Service]
+Restart=always
+User=loki
+ExecStart=/opt/loki/loki --config.file=/opt/loki/loki.yml 
+ExecReload=/bin/kill -HUP $MAINPID
+TimeoutStopSec=20s
+SendSIGKILL=no
+LimitNOFILE=8192
+
+[Install]
+WantedBy=multi-user.target
+

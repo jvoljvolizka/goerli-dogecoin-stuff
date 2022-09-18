@@ -1,0 +1,16 @@
+[Unit]
+Description=Responsible for gathering logs and sending them to Loki. 
+
+[Service]
+Restart=always
+User=promtail
+ExecStart=/opt/promtail/promtail --config.file=/opt/promtail/promtail.yml 
+ExecReload=/bin/kill -HUP $MAINPID
+TimeoutStopSec=20s
+SendSIGKILL=no
+LimitNOFILE=8192
+
+[Install]
+WantedBy=multi-user.target
+
+

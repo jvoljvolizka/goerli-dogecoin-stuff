@@ -1,0 +1,55 @@
+version: "3.8"
+
+services:
+  ethereum-exec:
+    image: ethereum/client-go:stable
+    container_name: geth-${TESTNET}
+    command: |
+      --${TESTNET} --http --authrpc.vhosts "localhost,geth-${TESTNET}" --authrpc.jwtsecret /root/.ethereum/${TESTNET}/geth/jwtsecret --authrpc.addr 0.0.0.0 --metrics --metrics.addr 0.0.0.0 --cache 2500 --authrpc.port 8551 
+  
+    ports: 
+      - 127.0.0.1:8551:8551
+      - 127.0.0.1:6060:6060/tcp
+      - 30303:30303/tcp
+      - 30303:30303/udp
+      - 30301:30301
+    volumes: 
+      - ${NODE_DIR}/ethereum:/root/.ethereum
+    networks:
+      - geth
+    stop_grace_period: 3m 
+    restart: unless-stopped
+  ethereum-consensus:
+    restart: unless-stopped
+    image: consensys/teku:latest
+    user: "0:0" # for geth
+    depends_on:
+      - "ethereum-exec"
+    container_name: teku-${TESTNET}
+    command: | 
+      --network=${TESTNET} --ee-endpoint=http://geth-${TESTNET}:8551 --ee-jwt-secret-file=/var/lib/teku/data/${TESTNET}/geth/jwtsecret  --data-base-path=/var/lib/teku/data --p2p-port=9000 --rest-api-enabled=true --rest-api-docs-enabled=true --initial-state=${CHECKPOINT} --metrics-enabled=true --metrics-categories=BEACON,PROCESS,LIBP2P,JVM,NETWORK,PROCESS
+    ports:
+      - 9000:9000/tcp
+      - 9000:9000/udp
+      - 127.0.0.1:5051:5051/tcp
+      - 127.0.0.1:8008:8008/tcp
+    volumes:
+      - ${NODE_DIR}/ethereum:/var/lib/teku/data
+    networks:
+      - geth
+
+
+  dogecoin-mainnet:
+    image: evaluationcopy/dogecoin-node:latest
+    container_name: dogecoin-mainnet
+    restart: always
+    ports:
+      - 22556:22556
+    volumes:
+      - ${NODE_DIR}/dogecoin:/root/.dogecoin
+    networks:
+      - dogecoin
+
+networks:
+  dogecoin:
+  geth:

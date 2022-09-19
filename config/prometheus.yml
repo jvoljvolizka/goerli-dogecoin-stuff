@@ -33,3 +33,12 @@ scrape_configs:
     static_configs:
       - targets: ["localhost:9100"]
 
+  - job_name: "Teku Goerli Metrics"
+
+    static_configs:
+      - targets: ["localhost:8008"]
+
+  - job_name: "Geth Goerli metrics"
+    metrics_path: "/debug/metrics/prometheus"
+    static_configs:
+      - targets: ["localhost:6060"]

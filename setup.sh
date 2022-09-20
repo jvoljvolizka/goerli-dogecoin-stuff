@@ -67,7 +67,7 @@ sudo systemctl start promtail.service
 sudo systemctl enable promtail.service
 sudo systemctl start grafana-server.service
 cd $DATA_DIR/nodes
-sudo docker-compose --env-file ./.env up -d
+sudo docker-compose up -d
 
 cd $CODE_DIR
 sudo cp -r ./config/grafana/provisioning/* /etc/grafana/provisioning/
